@@ -1,0 +1,29 @@
+{
+  "name": "express-anson-",
+  "version": "1.0.0",
+  "description": "This repository documents my **end-to-end learning, practice, and implementation of Express.js**, the most widely used backend framework built on top of Node.js.   It serves as **both documentation and a hands-on codebase** for mastering backend development.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start-dev": "nodemon ./src/index.js",
+    "start": "node ./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pradeep-gif-hub/Express-Anson.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Pradeep-gif-hub/Express-Anson/issues"
+  },
+  "homepage": "https://github.com/Pradeep-gif-hub/Express-Anson#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.11"
+  }
+}
