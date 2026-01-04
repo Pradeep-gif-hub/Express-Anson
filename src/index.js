@@ -9,14 +9,49 @@ const middleWare= (request,response,next)=>{
       next();
 };
 
+const resolveIndexByUserId=(request,response,next)=>{
+  const {
+    body,
+    params:{
+      id
+    },
+  }=request;
+  const parseId=parseInt(id);
+  if(isNaN(parseId)) return response.sendStatus(400);
+  findUserIndex=MockUsers.findIndex(id);
+  if(findUserIndex===-1) return response.sendStatus(404);
+  request.findUserIndex=findUserIndex;
+  next();
+}
+
 app.use(middleWare);
 
 
 
 const PORT = process.env.PORT || 3000;
 
+app.get("/",(request,response,next)=>{
+  console.log("Base URL");
+  next();
+},
+(request,response,next)=>{
+  console.log("Base URL");
+  next();
+},
+(request,response,next)=>{
+  console.log("Base URL");
+  next();
+},
+(request,response,next)=>{
+  console.log("Base URL");
+  next();
+},
+(request,response)=>{
+  response.status(201).send({msg:"Hello"});
+})
 
-app.get("/", (req, res) => {
+
+app.get("/", middleWare,(req, res) => {
   res.status(200).send({msg : "Pradeep Awasthi"});
 });
 
@@ -40,6 +75,11 @@ app.get('/api/users',(request, response)=>{
 
 });
 
+app.use(middleWare,(request,response,next)=>{
+  console.log("Finished Logging");
+  next();
+  
+});
 
 // Post  Request
 app.post('/api/users',(request,response)=>{
@@ -67,26 +107,14 @@ app.get('/api/products',(request,response)=>{
 
 // Put Request
 
-app.put("/api/users/:id", (req, res) => {
-  const oldId = Number(req.params.id);
-  const { id, name, displayName } = req.body;
-
-  const index = MockUsers.findIndex(user => user.id === oldId);
-  if (index === -1) return res.status(404).send({ msg: "User not found" });
-
-  // prevent duplicate IDs
-  if (id && MockUsers.some(u => u.id === id && u.id !== oldId)) {
-    return res.status(400).send({ msg: "ID already exists" });
-  }
-
-  MockUsers[index] = {
-    id: id ?? oldId,
-    name,
-    displayName
-  };
-
-  res.send(MockUsers[index]);
+app.put("/api/users/:id", resolveIndexByUserId,(req, res) => {
+  const {body,findUserIndex}=request;
+  MockUsers[findUserIndex]={id:MockUsers[findUserIndex].id,...body};
+  return response.sendStatus(200);
 });
+
+ 
+
 
 
 // Patch Request 

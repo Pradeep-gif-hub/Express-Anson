@@ -164,6 +164,33 @@ npm run dev
 
 ```
 
+## HTTP Methods Overview
+
+### GET
+- Retrieves data from the server without changing anything.
+- Safe and idempotent: calling it multiple times returns the same result (if data hasn’t changed).
+- Commonly used for listing resources or fetching a single resource by ID.
+
+### POST
+- Creates a new resource on the server.
+- Not idempotent: multiple identical POSTs can create multiple resources.
+- Often used to submit forms, register users, or create records.
+
+### PUT
+- Replaces an existing resource with the data you send.
+- Idempotent: sending the same PUT request multiple times results in the same final state.
+- Typically used for full updates where you send the complete representation of the resource.
+
+### PATCH
+- Partially updates an existing resource with only the fields you provide.
+- Not strictly required to be idempotent, but is often implemented that way.
+- Useful when you just want to change a few properties (e.g., update only `displayName`).
+
+### DELETE
+- Removes an existing resource from the server.
+- Idempotent: deleting the same resource multiple times has the same end result (resource is gone).
+- Often returns `204 No Content` when the deletion is successful.
+
 ## ⭐ Support & Contribution
 
 If this repository helped you understand Express.js or backend development in any way, please consider giving it a ⭐.  
