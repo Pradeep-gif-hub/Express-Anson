@@ -21,7 +21,8 @@
   },
   "homepage": "https://github.com/Pradeep-gif-hub/Express-Anson#readme",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-validator": "^7.3.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.11"

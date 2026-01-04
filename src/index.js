@@ -1,4 +1,6 @@
 import express, { response } from "express";
+import {query,body,validationResult} from "express-validator";
+
 
 const app = express();
 
@@ -26,10 +28,7 @@ const resolveIndexByUserId=(request,response,next)=>{
 
 app.use(middleWare);
 
-
-
-const PORT = process.env.PORT || 3000;
-
+const PORT=process.env.PORT || 3000;
 app.get("/",(request,response,next)=>{
   console.log("Base URL");
   next();
@@ -48,19 +47,21 @@ app.get("/",(request,response,next)=>{
 },
 (request,response)=>{
   response.status(201).send({msg:"Hello"});
-})
+});
 
 
 app.get("/", middleWare,(req, res) => {
   res.status(200).send({msg : "Pradeep Awasthi"});
 });
 
-const MockUsers=[{id: 1, name: " Peter", displayName: "Anson"},
-        {id: 2,name:"Andrew ", displayName:"Harry"},
-        {id: 3,name:"Robert ", displayName:"Hook"},
-        {id: 4, name:"Rajdeep ", displayName:"Yadav"},
-      {id: 5, name: "Stephen ", displayName:"Hawkins"}]
 
+const MockUsers=[{id: 1, name:"Peter", displayName: "Anson"},
+        {id: 2,name:"Andrew ",displayName:"Harry"},
+        {id: 3,name:"Robert ",displayName:"Hook"},
+        {id: 4, name:"Rajdeep ",displayName:"Yadav"},
+      {id: 5, name: "Stephen ",displayName:"Hawkins"}]
+
+      
 
 // Query Parameter 
 app.get('/api/users',(request, response)=>{
@@ -72,23 +73,74 @@ app.get('/api/users',(request, response)=>{
     if(filter && value){
       return response.send(MockUsers.filter((user)=> user[filter].includes(value)))
     }
-
 });
-
 app.use(middleWare,(request,response,next)=>{
   console.log("Finished Logging");
-  next();
-  
+  next();  
 });
 
+
+app.get(
+  "/api/users",
+  query("filter").optional().isString().notEmpty(),
+  (req, res) => {
+    console.log(req["express-validator#contexts"]);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { filter, value } = req.query;
+    if (filter && value) {
+      return res.send(
+        MockUsers.filter(user => user[filter]?.includes(value))
+      );
+    }
+
+    return res.send(MockUsers);
+  }
+);
+
+
 // Post  Request
-app.post('/api/users',(request,response)=>{
-  const {body}=request;
-  const newUser={id: MockUsers[MockUsers.length-1].id+1,...body};
-  MockUsers.push(newUser);
-  return response.status(201).send(newUser);
-  
-});
+// app.post('/api/users',(request,response)=>{
+//   const {body}=request;
+//   const newUser={id: MockUsers[MockUsers.length-1].id+1,...body};
+//   MockUsers.push(newUser);
+//   return response.status(201).send(newUser);
+// });
+
+
+app.post(
+  "/api/users",
+  body("displayName")
+  .isString().withMessage("username must be a string").bail()
+  .notEmpty().withMessage("username cannot be empty").bail()
+  .isLength({ min: 5, max: 32 })
+  .withMessage("username must be 5–32 characters long"),
+  (req, res) => {
+    console.log("Validator Context:");
+    console.log(req["express-validator#contexts"]);
+
+    const errors = validationResult(req);
+    console.log(" Validation Result :-");
+    console.log(errors);
+    console.log("Error Array :-");
+    console.log(errors.array());
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        errors: errors.array()
+      });
+    }
+    const newUser = {
+      id: MockUsers[MockUsers.length - 1].id + 1,
+      username: req.body.username
+    };
+    MockUsers.push(newUser);
+    return res.status(201).json(newUser);
+  }
+);
+
 
 app.get('/api/users/:id',(request,response)=>{
     console.log(request.params);
@@ -101,12 +153,13 @@ app.get('/api/users/:id',(request,response)=>{
     return response.send(findUser)
     });
 
+
 app.get('/api/products',(request,response)=>{
     response.send([{id: 123, Name: "Chicken Breast"}])
 })
 
-// Put Request
 
+// Put Request
 app.put("/api/users/:id", resolveIndexByUserId,(req, res) => {
   const {body,findUserIndex}=request;
   MockUsers[findUserIndex]={id:MockUsers[findUserIndex].id,...body};
