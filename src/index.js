@@ -3,8 +3,12 @@ import {query,body,validationResult} from "express-validator";
 import indexRouter from "./routes/index.js";
 import session from "express-session";
 import passport from "passport";
+import {User} from "./mongoose/schema/user.js";
 
+
+import mongoose from "mongoose";
 import cookieParser from "cookie-parser";
+
 
 
 
@@ -15,6 +19,12 @@ import cookieParser from "cookie-parser";
 
 
 const app = express();
+
+mongoose.connect('mongodb://localhost/express_tutorial')
+.then(()=> console.log('Connected to Data-Base'))
+.catch((err)=>{
+  console.log(err);
+})
 
 app.use(express.json());
 
@@ -49,6 +59,23 @@ app.get("/set-cookie", (req, res) => {
   });
   res.send("Cookie set");
 });
+
+
+indexRouter.post("/api/users",(request,response)=>{
+     const{body}=request;
+     const newUser= new User(body);
+     try{
+      const saveUser=newUser.save();
+      return response.statusCode(201);
+     }
+     catch(err){
+      console.log(`Error ${err}`);
+      return response.sendStatus(400);
+     }
+});
+
+
+
 
 
 // app.use(routerProducts);
