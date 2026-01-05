@@ -1,6 +1,8 @@
 import express, { response } from "express";
 import {query,body,validationResult} from "express-validator";
 import indexRouter from "./routes/index.js";
+import session from "express-session";
+import passport from "passport";
 
 import cookieParser from "cookie-parser";
 
@@ -16,7 +18,23 @@ const app = express();
 
 app.use(express.json());
 
+
+app.use(express.urlencoded({ extended: true }));
+
+
 app.use(cookieParser("HelloworldSecret"));
+app.get(session({
+  secret:"Pradeep Awasthi",
+  saveUninitialized:false,
+  resave:false,
+  cookie:{
+    maxAge: 60000*60,
+
+  },
+}
+));
+
+
 
 // app.use(router);
 // app.use(indexRouter);
@@ -65,10 +83,73 @@ const resolveIndexByUserId=(request,response,next)=>{
 app.use(middleWare);
 
 const PORT=process.env.PORT || 3000;
-app.get("/",
-(request,response)=>{
-  response.cookie("DataSets","IP-32UHE8N",{maxAge:60000*60*2,signed:true});
-  response.status(201).send({msg:"Hello"});
+
+
+app.use(cookieParser());
+
+app.use(cookieParser());
+
+app.use(
+  session({
+    name: "sid",
+    secret: "Pradeep Awasthi",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60,
+      httpOnly: true
+    }
+  })
+);
+
+
+app.get("/", (req, res) => {
+  console.log("SESSION OBJECT:", req.session);
+  console.log("SESSION ID:", req.sessionID);
+
+  // store something in session
+  req.session.user = {
+    id: 1,
+    name: "Pradeep"
+  };
+
+  res.json({
+    msg: "Session working",
+    session: req.session,
+    sessionID: req.sessionID
+  });
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.post("/api/auth", (req, res) => {
+  console.log("RAW BODY:", req.body);
+
+  if (!req.body) {
+    return res.status(400).json({ msg: "Request body missing" });
+  }
+
+  const { name, displayName } = req.body;
+
+  if (!name || !displayName) {
+    return res.status(400).json({ msg: "name and displayName required" });
+  }
+
+  const findUser = MockUsers.find(user => user.name === name);
+
+  if (!findUser || findUser.displayName !== displayName) {
+    return res.status(401).json({ msg: "Invalid Credentials" });
+  }
+
+  req.session.user = findUser;
+
+  return res.status(200).json({
+    msg: "Login Successful",
+    user: findUser,
+    sessionID: req.sessionID
+  });
 });
 
 
