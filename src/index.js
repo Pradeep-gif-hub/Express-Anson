@@ -1,10 +1,46 @@
 import express, { response } from "express";
 import {query,body,validationResult} from "express-validator";
+import indexRouter from "./routes/index.js";
+
+import cookieParser from "cookie-parser";
+
+
+
+
+
+// import router from "./routes/users.mjs";
+// import routerProducts from "./routes/products.mjs";
 
 
 const app = express();
 
 app.use(express.json());
+
+app.use(cookieParser("HelloworldSecret"));
+
+// app.use(router);
+// app.use(indexRouter);
+
+app.use("/api", indexRouter);
+
+app.get("/set-cookie", (req, res) => {
+  res.cookie("DataSets", "IP-32UHE8N", {
+    maxAge: 1000 * 60 * 60 * 2,
+    httpOnly: false, // IMPORTANT for debugging
+    path: "/"
+  });
+  res.send("Cookie set");
+});
+
+
+// app.use(routerProducts);
+const MockUsers=[{id: 1, name:"Peter", displayName: "Anson"},
+        {id: 2,name:"Andrew ",displayName:"Harry"},
+        {id: 3,name:"Robert ",displayName:"Hook"},
+        {id: 4, name:"Rajdeep ",displayName:"Yadav"},
+      {id: 5, name: "Stephen ",displayName:"Hawkins"}]
+
+      
 
 const middleWare= (request,response,next)=>{
       console.log(`${request.method}-${request.url}`);
@@ -29,39 +65,20 @@ const resolveIndexByUserId=(request,response,next)=>{
 app.use(middleWare);
 
 const PORT=process.env.PORT || 3000;
-app.get("/",(request,response,next)=>{
-  console.log("Base URL");
-  next();
-},
-(request,response,next)=>{
-  console.log("Base URL");
-  next();
-},
-(request,response,next)=>{
-  console.log("Base URL");
-  next();
-},
-(request,response,next)=>{
-  console.log("Base URL");
-  next();
-},
+app.get("/",
 (request,response)=>{
+  response.cookie("DataSets","IP-32UHE8N",{maxAge:60000*60*2,signed:true});
   response.status(201).send({msg:"Hello"});
 });
 
 
+ 
 app.get("/", middleWare,(req, res) => {
   res.status(200).send({msg : "Pradeep Awasthi"});
 });
 
 
-const MockUsers=[{id: 1, name:"Peter", displayName: "Anson"},
-        {id: 2,name:"Andrew ",displayName:"Harry"},
-        {id: 3,name:"Robert ",displayName:"Hook"},
-        {id: 4, name:"Rajdeep ",displayName:"Yadav"},
-      {id: 5, name: "Stephen ",displayName:"Hawkins"}]
 
-      
 
 // Query Parameter 
 app.get('/api/users',(request, response)=>{
@@ -101,13 +118,13 @@ app.get(
 );
 
 
-// Post  Request
-// app.post('/api/users',(request,response)=>{
-//   const {body}=request;
-//   const newUser={id: MockUsers[MockUsers.length-1].id+1,...body};
-//   MockUsers.push(newUser);
-//   return response.status(201).send(newUser);
-// });
+//Post  Request
+app.post('/api/users',(request,response)=>{
+  const {body}=request;
+  const newUser={id: MockUsers[MockUsers.length-1].id+1,...body};
+  MockUsers.push(newUser);
+  return response.status(201).send(newUser);
+});
 
 
 app.post(
