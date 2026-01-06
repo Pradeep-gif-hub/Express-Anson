@@ -20,7 +20,7 @@ import cookieParser from "cookie-parser";
 
 const app = express();
 
-mongoose.connect('mongodb://localhost/express_tutorial')
+mongoose.connect('mongodb+srv://pawasthi063_db_user:Mongo12345@express.aben0yc.mongodb.net/testdb?appName=Express')
 .then(()=> console.log('Connected to Data-Base'))
 .catch((err)=>{
   console.log(err);
@@ -61,17 +61,42 @@ app.get("/set-cookie", (req, res) => {
 });
 
 
-indexRouter.post("/api/users",(request,response)=>{
-     const{body}=request;
-     const newUser= new User(body);
-     try{
-      const saveUser=newUser.save();
-      return response.statusCode(201);
-     }
-     catch(err){
-      console.log(`Error ${err}`);
-      return response.sendStatus(400);
-     }
+// indexRouter.post("/api/users",(request,response)=>{
+//      const{body}=request;
+//      const newUser= new User(body);
+//      try{
+//       const saveUser=newUser.save();
+//       return response.statusCode(201);
+//      }
+//      catch(err){
+//       console.log(`Error ${err}`);
+//       return response.sendStatus(400);
+//      }
+// });
+
+
+
+
+
+
+app.post("/api/users", async (req, res) => {
+  try {
+    const { username, password, displayName } = req.body;
+
+    const user = await User.create({
+      username,
+      password,
+      displayName
+    });
+
+    res.status(201).json({
+      id: user._id,              // MongoDB ID
+      username: user.username,
+      displayName: user.displayName
+    });
+  } catch (err) {
+    res.status(400).json({ msg: err.message });
+  }
 });
 
 
