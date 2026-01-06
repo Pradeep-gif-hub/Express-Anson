@@ -77,8 +77,6 @@ app.get("/set-cookie", (req, res) => {
 
 
 
-
-
 app.post("/api/users", async (req, res) => {
   try {
     const { username, password, displayName } = req.body;
@@ -86,13 +84,13 @@ app.post("/api/users", async (req, res) => {
     const user = await User.create({
       username,
       password,
-      displayName
+      displayName,
     });
 
     res.status(201).json({
-      id: user._id,              // MongoDB ID
+      id: user._id,
       username: user.username,
-      displayName: user.displayName
+      displayName: user.displayName,
     });
   } catch (err) {
     res.status(400).json({ msg: err.message });
